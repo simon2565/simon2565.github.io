@@ -1,2 +1,362 @@
-ahoj
-ZQDGBZUd
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lucky Casino</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, #3b0754, #100018 60%);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .casino {
+      width: 95%;
+      max-width: 700px;
+      text-align: center;
+      background: rgba(20, 10, 30, 0.95);
+      border: 2px solid #d4af37;
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 0 40px rgba(212, 175, 55, 0.25);
+    }
+
+    h1 {
+      color: #ffd700;
+      margin-top: 0;
+      font-size: 42px;
+      text-shadow: 0 0 15px #ffae00;
+    }
+
+    .balance {
+      display: inline-block;
+      padding: 12px 25px;
+      border-radius: 30px;
+      background: #24102f;
+      border: 1px solid #d4af37;
+      margin-bottom: 30px;
+      font-size: 20px;
+    }
+
+    .balance span {
+      color: #ffd700;
+      font-weight: bold;
+    }
+
+    .slots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 30px 0;
+    }
+
+    .reel {
+      width: 130px;
+      height: 130px;
+      background: linear-gradient(#fff, #ddd);
+      color: #111;
+      border-radius: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 65px;
+      box-shadow:
+        inset 0 0 15px #555,
+        0 5px 15px rgba(0,0,0,.5);
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+    }
+
+    input {
+      width: 200px;
+      padding: 13px;
+      border-radius: 10px;
+      border: 2px solid #d4af37;
+      background: #160b20;
+      color: white;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 14px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .spin {
+      background: linear-gradient(135deg, #ffcc00, #ff7b00);
+      color: #240b00;
+      min-width: 220px;
+    }
+
+    .spin:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #ffb300;
+    }
+
+    .bonus {
+      background: #4b1768;
+      color: white;
+      border: 1px solid #b95cff;
+    }
+
+    .bonus:hover {
+      background: #68228d;
+    }
+
+    #message {
+      min-height: 30px;
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .win {
+      color: #00ff88;
+    }
+
+    .lose {
+      color: #ff5555;
+    }
+
+    .info {
+      margin-top: 25px;
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    @media (max-width: 500px) {
+      .reel {
+        width: 90px;
+        height: 90px;
+        font-size: 45px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .casino {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="casino">
+
+    <h1>🎰 Lucky Casino</h1>
+
+    <div class="balance">
+      Demo kredity:
+      <span id="balance">1000</span> 🪙
+    </div>
+
+    <div class="slots">
+      <div class="reel" id="reel1">🍒</div>
+      <div class="reel" id="reel2">🍋</div>
+      <div class="reel" id="reel3">🍊</div>
+    </div>
+
+    <div class="controls">
+
+      <label>
+        Sázka:
+        <br>
+        <input
+          id="bet"
+          type="number"
+          min="1"
+          value="50"
+        >
+      </label>
+
+      <button class="spin" onclick="spin()">
+        🎰 SPIN
+      </button>
+
+      <button class="bonus" onclick="addBonus()">
+        💰 +500 demo kreditů
+      </button>
+
+    </div>
+
+    <div id="message">
+      Hodně štěstí! 🍀
+    </div>
+
+    <div class="info">
+      Toto je pouze demo. Používají se výhradně fiktivní kredity.
+    </div>
+
+  </div>
+
+<script>
+
+  let balance = 1000;
+
+  const symbols = [
+    "🍒",
+    "🍋",
+    "🍊",
+    "🍇",
+    "🔔",
+    "⭐",
+    "💎"
+  ];
+
+  function updateBalance() {
+    document.getElementById("balance").textContent =
+      balance.toLocaleString("cs-CZ");
+  }
+
+  function randomSymbol() {
+    return symbols[Math.floor(Math.random() * symbols.length)];
+  }
+
+  function spin() {
+
+    const betInput = document.getElementById("bet");
+    const bet = Number(betInput.value);
+    const message = document.getElementById("message");
+
+    if (!Number.isFinite(bet) || bet <= 0) {
+      message.textContent = "Zadej platnou sázku.";
+      message.className = "lose";
+      return;
+    }
+
+    if (bet > balance) {
+      message.textContent = "Nemáš dostatek demo kreditů.";
+      message.className = "lose";
+      return;
+    }
+
+    balance -= bet;
+    updateBalance();
+
+    message.textContent = "Točíme... 🎰";
+    message.className = "";
+
+    const reels = [
+      document.getElementById("reel1"),
+      document.getElementById("reel2"),
+      document.getElementById("reel3")
+    ];
+
+    let spins = 0;
+
+    const animation = setInterval(() => {
+
+      reels.forEach(reel => {
+        reel.textContent = randomSymbol();
+      });
+
+      spins++;
+
+      if (spins >= 12) {
+        clearInterval(animation);
+        finishSpin(bet);
+      }
+
+    }, 100);
+
+  }
+
+  function finishSpin(bet) {
+
+    const result = [
+      randomSymbol(),
+      randomSymbol(),
+      randomSymbol()
+    ];
+
+    document.getElementById("reel1").textContent = result[0];
+    document.getElementById("reel2").textContent = result[1];
+    document.getElementById("reel3").textContent = result[2];
+
+    const message = document.getElementById("message");
+
+    let winnings = 0;
+
+    // Tři stejné symboly = 10× sázka
+    if (
+      result[0] === result[1] &&
+      result[1] === result[2]
+    ) {
+      winnings = bet * 10;
+
+      // Tři diamanty = 25×
+      if (result[0] === "💎") {
+        winnings = bet * 25;
+      }
+
+    // Dva stejné symboly = 2×
+    } else if (
+      result[0] === result[1] ||
+      result[1] === result[2] ||
+      result[0] === result[2]
+    ) {
+      winnings = bet * 2;
+    }
+
+    if (winnings > 0) {
+
+      balance += winnings;
+      updateBalance();
+
+      message.textContent =
+        `🎉 Výhra ${winnings.toLocaleString("cs-CZ")} kreditů!`;
+
+      message.className = "win";
+
+    } else {
+
+      message.textContent =
+        `😢 Prohráváš ${bet.toLocaleString("cs-CZ")} kreditů.`;
+
+      message.className = "lose";
+    }
+  }
+
+  function addBonus() {
+
+    balance += 500;
+    updateBalance();
+
+    const message = document.getElementById("message");
+
+    message.textContent = "💰 Přidáno 500 demo kreditů!";
+    message.className = "win";
+  }
+
+  updateBalance();
+
+</script>
+
+</body>
+</html>
